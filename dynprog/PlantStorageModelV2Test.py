@@ -19,7 +19,7 @@ kappa = 0.75
 def P(w):
     return 0.1*w**kappa    
 
-plantStorageModel = PlantStorageModelV1( P = P, beta = 0.95 )
+plantStorageModel = PlantStorageModelV2( P = P, beta = 0.95 )
 idx = plantStorageModel.getIdx( grid_min = [0.0,0.0 ], 
                                 #grid_max = [4.0,4.0], 
                                 #grid_size = [6,6]
@@ -30,11 +30,13 @@ idx = plantStorageModel.getIdx( grid_min = [0.0,0.0 ],
 print "model version: ",plantStorageModel.ver()
 
 w0 = plantStorageModel.init(idx)
-model = DynamicModelWithGradOptimisation(
+model = DynamicModelSLSQP(
                      plantStorageModel.utility,
                      plantStorageModel.dUtility,
                      plantStorageModel.g,
                      plantStorageModel.dG,
+                     plantStorageModel.ieqcons,
+                     plantStorageModel.dIeqcons,
                      plantStorageModel.la,
                      plantStorageModel.ua,
                      idx,
@@ -44,9 +46,9 @@ model = DynamicModelWithGradOptimisation(
 print (-np.log(0.98*0.95)/(0.1*0.75))**-4
 
 solverWithDiff = InfiniterHorisontSolver(model, interpolator = GridLinearInterpolator)
-retDiff = solverWithDiff.computeFixedPointPolicyIteration(w0,error_tol = 1e-2, max_iter =50,max_policy_iter = 500)
+retDiff = solverWithDiff.computeFixedPointPolicyIteration(w0,error_tol = 1e-2, max_iter =8,max_policy_iter = 500)
 
-DynamicModelWithGradOptimisation.printErrors(solverWithDiff.optimisationHistory)
+DynamicModelSLSQP.printErrors(solverWithDiff.optimisationHistory)
 
 
 retDiffFullCutHiBeta = retDiff

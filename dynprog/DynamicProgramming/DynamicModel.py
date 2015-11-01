@@ -145,26 +145,14 @@ class DynamicModelSLSQP(DynamicModelBase):
         
     
     
-    @staticmethod
-    def objectiveFunctionWithGrad( a, s, Aw, model):
-        
-        val = model.utility(s,a)
-        dVal = model.dUtility(s,a)        
-        
-        for e, w in model.mu:
-            FdF = Aw.FdF(model.g(s,a,e))
-            #print "F:", FdF[0], " dF:",FdF[1]
-            val += model.beta * w * FdF[0]
-            dVal += model.beta * w * np.dot(FdF[1], model.dG(s,a,e))            
-        
-        return (-val,-dVal)
+    
         
     def calculateBound( self, s):
         return zip( self.la(s), self.ua(s))
     
    
     def calculateInits( self, bounds):
-        return map(lambda x: (0.2*x[0]+0.8*x[1]), bounds)        
+        return map(lambda x: 0, bounds)        
     
     @staticmethod
     def func( a, *args):
